@@ -22,7 +22,7 @@ def find_directory(file, offset, searched_directory, inode):
     # Find the current search directory
     # and return the inode from the next visit directory
 
-    fls = os.popen('fls -o ' + offset + ' ' + file + ' ' + inode).read()
+    fls = os.popen('fls -o ' + offset + ' "' + file + '" ' + inode).read()
     fls = fls.replace('\t', ' ').replace(':', '')    
     split_fls = fls.split('\n')
     split_fls = remove_whitespace(split_fls)
@@ -55,7 +55,7 @@ def main():
     # Make a mmls in the filesystem 
     # and give an split in output tree directories
     args = parser.parse_args()
-    mmls = os.popen('mmls ' + args.f).read()
+    mmls = os.popen('mmls "' +args.f + '"').read()
 
     split_mmls = mmls.split('\n')
 
@@ -84,7 +84,7 @@ def main():
         if len(list_directorie) == 0: break
 
     # Send the files to the destination required by user
-    os.popen('tsk_recover -o ' + offset_mmls[-4] + ' -d ' + inode + ' ' + args.f + ' ' + args.d).read()
+    os.popen('tsk_recover -o ' + offset_mmls[-4] + ' -d ' + inode + ' "' + args.f +  '" ' + args.d).read()
 
 if __name__ == "__main__":
     main()
