@@ -1,5 +1,8 @@
 import os 
 from gtts import gTTS
+import pyttsx3 as ts
+import random
+import uuid
 
 def filter_dirs(dirs):
 
@@ -48,6 +51,16 @@ if __name__ == '__main__':
     except (FileExistsError, OSError):
           pass
 
+    useGttk = False
+
+    # Init the default setup pyttsx3
+
+    engine = ts.init()
+
+    voices = engine.getProperty('voices')
+    rate = engine.getProperty('rate')
+    volume = engine.getProperty('volume')
+
     for filename in all_txts:
       
       file = open(filename, 'r')
@@ -55,14 +68,26 @@ if __name__ == '__main__':
       content_split = treat_content_file(content_txt)
 
       for word in content_split:
+
+        useGttk = bool(random.getrandbits(1))
         
         try:
           os.mkdir(os.getcwd() + "/dataset/" + word)
         except (FileExistsError, OSError):
           pass
 
-        TTS = gTTS(text= word, lang='pt-br')
-        TTS.save(f"dataset/{word}/{word}.mp3")
+        if useGttk:
+          TTS = gTTS(text= word, lang='pt-br')
+          TTS.save(f"dataset/{word}/{word}{uuid.uuid1()}.mp3")
+        
+        else:
+          for voice in voices:
+            if (voice.name == 'Luciana' or voice.name == 'Joana' ):
+                engine.setProperty('voice', voice.id)
+                engine.setProperty('rate', rate + random.randint(-15, 15))
+                engine.setProperty('volume', volume - random.uniform(0.1, 0.9))
+                engine.save_to_file(word, f"dataset/{word}/{word}{uuid.uuid1()}.mp3")
+
 
   except AssertionError:
     print('Não foi possível criar audios do texto atual!!')
