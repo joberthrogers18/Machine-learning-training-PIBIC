@@ -1,50 +1,35 @@
-# import csv
-
-# with open('all-maconha-tweets.txt') as csv_file:
-#     csv_reader = csv.reader(csv_file, delimiter=",")
-#     line_count = 0
-#     for row in csv_reader:
-
-#         if line_count == 10: break
-
-#         if line_count == 0:
-#             print(f'Column names are {", ".join(row)}')
-#             line_count += 1
-#         else:
-#             print(row[2])
-#             line_count += 1
-#     print(f'Processed {line_count} lines.')
-
-# import requests as req
-
-# api_key_youtube = 'AIzaSyAlg5R2U3a3rpxGlsrDSdDdmS9nksfBQeY'
-# keyword = 'teste software'
-
-# url = f'https://www.googleapis.com/youtube/v3/search?part=snippet&q={keyword}&maxResults=25&key=' + api_key_youtube
-# resp = req.get(url)
-# data = resp.json()
-
-# save_ids = []
-
-# try:
-#     for video in data['items']:
-#         save_ids.append(video['id']['videoId'])
-# except KeyError:
-#     pass
-
-# print(save_ids)
-
+import requests as req
 import youtube_dl
 from youtube_transcript_api import YouTubeTranscriptApi
 from pydub import AudioSegment
+import uuid
 import os
 
-def get_subtitle(video_id):
+def get_videos(keyword):
+
+    api_key_youtube = 'AIzaSyAlg5R2U3a3rpxGlsrDSdDdmS9nksfBQeY'
+    keyword = 'teste software'
+
+    url = f'https://www.googleapis.com/youtube/v3/search?part=snippet&q={keyword}&maxResults=25&key=' + api_key_youtube
+    resp = req.get(url)
+    data = resp.json()
+
+    save_ids = []
+
+    try:
+        for video in data['items']:
+            save_ids.append(video['id']['videoId'])
+    except KeyError:
+        pass
+
+    return save_ids
+
+def get_subtitle(video_id, keyword):
     drugs_subtitle = []
     subtitles = YouTubeTranscriptApi.get_transcript(video_id)
 
     for subtitle in subtitles:
-        if 'chorar' in subtitle['text']:
+        if keyword in subtitle['text']:
             drugs_subtitle.append(subtitle)
 
     return drugs_subtitle
@@ -71,13 +56,22 @@ def remove_aux_wavs():
 
 def split_audio(start, end, count):
     sound = AudioSegment.from_file('CHORO FÁCIL - STAND UP-sdVabHZnU7g.wav') 
-    first_half = sound[start * 1000 : end * 1000]
+    first_half = sound[ start * 1000 : end * 1000 - 2000]
     first_half.export(f"aux_{count}.wav", format="wav")
 
 if __name__ == '__main__':
-    download('https://www.youtube.com/watch?v=sdVabHZnU7g')
-    subtitles = get_subtitle('sdVabHZnU7g')
-    print(subtitles)
-    split_audio(subtitles[0]['start'], subtitles[0]['start'] + subtitles[0]['duration'], 0)
+    videos = get_videos('maconha')
+    
+    for video in videos:
+        download(f'https://www.youtube.com/watch?v={video}')
+        subtitles = get_subtitle(video)
 
-    remove_aux_wavs()
+        count = 0
+
+        for subtitle in subtitles:
+            split_audio(subtitle['start'], subtitle['start'] + subtitle['duration'], count)
+            count += 1
+
+        # integration api speech recognition google
+
+        remove_aux_wavs()
