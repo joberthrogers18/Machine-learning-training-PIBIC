@@ -1,3 +1,4 @@
+import requests
 import requests as req
 import youtube_dl
 from youtube_transcript_api import YouTubeTranscriptApi
@@ -13,10 +14,9 @@ import io
 
 def get_videos(keyword):
 
+    keyword = 'maconha'
     api_key_youtube = 'AIzaSyAlg5R2U3a3rpxGlsrDSdDdmS9nksfBQeY'
-    # keyword = 'teste software'
-
-    url = f'https://www.googleapis.com/youtube/v3/search?part=snippet&q={keyword}&maxResults=3&key=' + api_key_youtube
+    url = 'https://www.googleapis.com/youtube/v3/search?part=snippet&q=' + keyword + '&maxResults=1&key=' + api_key_youtube
     resp = req.get(url)
     data = resp.json()
 
@@ -24,11 +24,15 @@ def get_videos(keyword):
 
     try:
         for video in data['items']:
-            save_ids.append(video['id']['videoId'])
+            save_ids.append({'title': video['snippet']['title'], 'id': video['id']['videoId']})
     except KeyError:
         pass
 
     return save_ids
+
+def get_name_video(video_id):
+    info_videos = YouTubeTranscriptApi.get_transcript(video_id)
+    print(info_videos)
 
 def get_subtitle(video_id, keyword):
     print('passou')
@@ -54,7 +58,7 @@ def download(link):
         'postprocessors': [{
             'key': 'FFmpegExtractAudio',
             'preferredcodec': 'wav',
-            'preferredquality': '50'
+            'preferredquality': '5'
         }]
     }
     youtube_dl.YoutubeDL(opts).download([link])
@@ -67,7 +71,7 @@ def remove_aux_wavs():
             os.remove(os.path.join(os.getcwd(), item))
 
 def split_audio(start, end, count):
-    name_file = f"aux_{count}.wav"
+    name_file = "aux_" + count + ".wav"
     sound = AudioSegment.from_file('CHORO FÁCIL - STAND UP-sdVabHZnU7g.wav') 
     splited_audio = sound[ start * 1000 : end * 1000 - 2000]
     splited_audio.export(name_file, format="wav")
@@ -89,13 +93,16 @@ if __name__ == '__main__':
     keyword = 'maconha'
     videos = get_videos(keyword)
     subtitles = []
+    print(videos)
 
-    for video in videos:
-        download(f'https://www.youtube.com/watch?v={video}')
-        subtitles = get_subtitle(video, keyword)
+    # for video in videos:
+        # download("https://www.youtube.com/watch?v=" + video)
+        # subtitles = get_subtitle(video, keyword)
+        # print(subtitles)
+        # get_name_video(video)
 
-        count = 0
-        list_aux_audios = []
+    #     count = 0
+    #     list_aux_audios = []
 
         # for subtitle in subtitles:
         #     list_aux_audios.append(
