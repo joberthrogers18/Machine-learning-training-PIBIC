@@ -6,6 +6,7 @@ from pydub import AudioSegment
 import uuid
 import os
 import io
+import time
 
 # from google.cloud import speech
 # from google.cloud.speech_v1 import enums
@@ -16,7 +17,7 @@ def get_videos(keyword):
 
     keyword = 'maconha'
     api_key_youtube = 'AIzaSyAlg5R2U3a3rpxGlsrDSdDdmS9nksfBQeY'
-    url = 'https://www.googleapis.com/youtube/v3/search?part=snippet&q=' + keyword + '&maxResults=1&key=' + api_key_youtube
+    url = 'https://www.googleapis.com/youtube/v3/search?part=snippet&q=' + keyword + '&maxResults=5&key=' + api_key_youtube
     resp = req.get(url)
     data = resp.json()
 
@@ -70,9 +71,9 @@ def remove_aux_wavs():
         if item.endswith(".wav"):
             os.remove(os.path.join(os.getcwd(), item))
 
-def split_audio(start, end, count):
-    name_file = "aux_" + count + ".wav"
-    sound = AudioSegment.from_file('CHORO FÁCIL - STAND UP-sdVabHZnU7g.wav') 
+def split_audio(start, end, count, title, id_video):
+    name_file = "aux_" + str(count) + ".wav"
+    sound = AudioSegment.from_file(title + '-' + id_video + '.wav') 
     splited_audio = sound[ start * 1000 : end * 1000 - 2000]
     splited_audio.export(name_file, format="wav")
 
@@ -95,30 +96,30 @@ if __name__ == '__main__':
     subtitles = []
     print(videos)
 
-    # for video in videos:
-        # download("https://www.youtube.com/watch?v=" + video)
-        # subtitles = get_subtitle(video, keyword)
-        # print(subtitles)
-        # get_name_video(video)
+    for video in videos:
+        download("https://www.youtube.com/watch?v=" + video['id'])
+        subtitles = get_subtitle(video['id'], keyword)
 
-    #     count = 0
-    #     list_aux_audios = []
+        count = 0
+        list_aux_audios = []
 
-        # for subtitle in subtitles:
-        #     list_aux_audios.append(
-        #         split_audio(
-        #             subtitle['start'], 
-        #             subtitle['start'] + subtitle['duration'], 
-        #             count
-        #         )
-        #     )
-        #     count += 1
+        time.sleep(35)
+
+        for subtitle in subtitles:
+            list_aux_audios.append(
+                split_audio(
+                    subtitle['start'], 
+                    subtitle['start'] + subtitle['duration'], 
+                    count,
+                    video['title'],
+                    video['id']
+                )
+            )
+            count += 1
         
-        # print(list_aux_audios)
-        
-        # split_audio_single(list_aux_audios, keyword) # integration api speech recognition google
+        split_audio_single(list_aux_audios, keyword) # integration api speech recognition google
 
-        # remove_aux_wavs()
+        remove_aux_wavs()
 
 
 
