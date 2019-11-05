@@ -4,6 +4,7 @@ from sklearn.model_selection import train_test_split
 from keras.utils import to_categorical
 import numpy as np
 from tqdm import tqdm
+import random
 
 DATA_PATH = "./data/"
 
@@ -42,6 +43,15 @@ def save_data_to_array(path=DATA_PATH, max_len=11):
         mfcc_vectors = []
 
         wavfiles = [path + label + '/' + wavfile for wavfile in os.listdir(path + '/' + label)]
+
+        # remove that after teste ------------------------
+
+        random.shuffle(wavfiles)
+
+        wavfiles = wavfiles[:250]
+
+        # -------------------------------------------------
+
         for wavfile in tqdm(wavfiles, "Saving vectors of label - '{}'".format(label)):
             mfcc = wav2mfcc(wavfile, max_len=max_len)
             mfcc_vectors.append(mfcc)
