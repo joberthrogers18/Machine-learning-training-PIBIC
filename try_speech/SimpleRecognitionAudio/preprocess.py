@@ -35,7 +35,8 @@ def wav2mfcc(file_path, max_len=11):
     return mfcc
 
 
-def save_data_to_array(path=DATA_PATH, max_len=11):
+def save_data_to_array(path=DATA_PATH, size_dataset=-1, max_len=11):
+    
     labels, _, _ = get_labels(path)
 
     for label in labels:
@@ -48,7 +49,8 @@ def save_data_to_array(path=DATA_PATH, max_len=11):
 
         random.shuffle(wavfiles)
 
-        wavfiles = wavfiles[:250]
+        if(size_dataset != -1):
+            wavfiles = wavfiles[:size_dataset]
 
         # -------------------------------------------------
 
