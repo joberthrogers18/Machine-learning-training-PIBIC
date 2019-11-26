@@ -75,15 +75,23 @@ prediction = predict('./teste_audio/maconha-treino0d3a1dfab0de439ba80162ef1fa468
 print(prediction)
 
 predictions = []
+pediction_audios = []
 
-os.system("cp teste_audio/maconha-treino0d3a1dfab0de439ba80162ef1fa46816.wav maconha-treino0d3a1dfab0de439ba80162ef1fa46816.wav")
-aAnaly.silenceRemovalWrapper("maconha-treino0d3a1dfab0de439ba80162ef1fa46816.wav", smoothingWindow=1.0, weight=0.3)
+for file_audio in os.listdir('./teste_audio/'):
+    # Verify through the split audio if audio is suspect or not
+ 
+    os.system("cp teste_audio/" + file_audio + " " + file_audio)
+    aAnaly.silenceRemovalWrapper(file_audio , smoothingWindow=1.0, weight=0.3)
 
-os.system("rm maconha-treino0d3a1dfab0de439ba80162ef1fa46816.wav")
-for filename in glob.glob(os.path.join(os.getcwd(), "*.wav")):
-    print(filename)
-    predictions.append( predict(filename, model=model) )
-    os.system("rm " + str(filename))
+    prediction = []
+    os.system("rm " + file_audio)
 
-print ('Audio suspeito') if 'maconha' in predictions else print('Não suspeito')
+    for filename in glob.glob(os.path.join(os.getcwd(), "*.wav")):
+        print(filename)
+        predictions.append( predict(filename, model=model) )
+        os.system("rm " + str(filename))
 
+    pediction_audios.append('Audio suspeito') if 'maconha' in predictions else pediction_audios.append('Não suspeito')
+
+print('Audios não suspeitos: ' + str( pediction_audios.count('Não suspeito') ) )
+print('Audios suspeitos: ' + str( pediction_audios.count('Audio suspeito') ) )
