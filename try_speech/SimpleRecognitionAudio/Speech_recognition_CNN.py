@@ -22,7 +22,7 @@ NUM_CLASSES = 8
 
 # Second dimension of the feature is dim2
 FEATURE_DIM_2 = 11
-DATASET_SIZE_MODEL = -1
+DATASET_SIZE_MODEL = 100
 
 def get_model():
     model = Sequential()
@@ -56,7 +56,7 @@ def predict(filepath, model):
 def training_model():
 
     # Save data to array file first
-    # save_data_to_array(max_len=FEATURE_DIM_2, size_dataset=DATASET_SIZE_MODEL)
+    save_data_to_array(max_len=FEATURE_DIM_2, size_dataset=DATASET_SIZE_MODEL)
 
     # Loading train set and test set
     X_train, X_test, y_train, y_test = get_train_test()
@@ -79,26 +79,66 @@ def training_model():
 if __name__ == '__main__':
 
     predictions = []
-    pediction_audios = []
+    prediction_audios = []
+    predictions2 = []
+    prediction_audios2 = []
 
     # return the model trained
     model = training_model()
 
+    # Files which there is the element "maconha inside the audio"
+
     for file_audio in os.listdir('./teste_audio/'):
         # Verify through the split audio if audio is suspect or not
-    
-        os.system("cp teste_audio/" + file_audio + " " + file_audio)
-        aAnaly.silenceRemovalWrapper(file_audio , smoothingWindow=1.0, weight=0.3)
 
-        prediction = []
-        os.system("rm " + file_audio)
+        try:
+            os.system("cp teste_audio/" + file_audio + " " + file_audio)
+            aAnaly.silenceRemovalWrapper(file_audio , smoothingWindow=1.0, weight=0.3)
 
-        for filename in glob.glob(os.path.join(os.getcwd(), "*.wav")):
-            print(filename)
-            predictions.append( predict(filename, model=model) )
-            os.system("rm " + str(filename))
+            prediction = []
+            os.system("rm " + file_audio)
 
-        pediction_audios.append('Audio suspeito') if 'maconha' in predictions else pediction_audios.append('Não suspeito')
+            for filename in glob.glob(os.path.join(os.getcwd(), "*.wav")):
+                print(filename)
+                predictions.append( predict(filename, model=model) )
+                os.system("rm " + str(filename))
 
-    print('Audios não suspeitos: ' + str( pediction_audios.count('Não suspeito') ) )
-    print('Audios suspeitos: ' + str( pediction_audios.count('Audio suspeito') ) )
+            prediction_audios.append('Audio suspeito') if 'maconha' in predictions else prediction_audios.append('Não suspeito')
+       
+        except RuntimeWarning:
+            pass
+
+    # Files which there is NOT the element "maconha inside the audio"
+
+    for file_audio in os.listdir('/home/captain-rogers/Área de Trabalho/whatsapp/audio_convert'):
+    # Verify through the split audio if audio is suspect or not
+        
+        try:
+            os.system("cp /home/captain-rogers/Área\ de\ Trabalho/whatsapp/audio_convert/" + file_audio + " " + file_audio)
+            aAnaly.silenceRemovalWrapper(file_audio , smoothingWindow=1.0, weight=0.3)
+
+            predictions2 = []
+            os.system("rm " + file_audio)
+
+            for filename in glob.glob(os.path.join(os.getcwd(), "*.wav")):
+                print(filename)
+                predictions2.append( predict(filename, model=model) )
+                os.system("rm " + str(filename))
+
+            prediction_audios2.append('Correto') if not 'maconha' in predictions2 else prediction_audios2.append('Errado')
+        
+        except (RuntimeWarning, ValueError ) as e:
+            pass   
+
+    print("\n\n")
+    print("RESUMO:")
+    print("\n")
+    print("Falso negativo")
+    print('Não contém maconha: ' + str( prediction_audios.count('Não suspeito') ) )
+    print('Contém maconha: ' + str( prediction_audios.count('Audio suspeito') ) )
+    print("Quantidade: " + str(len(prediction_audios)))
+    print("\n")
+    print("Falso positivo")
+    print('Não contém maconha: ' + str( prediction_audios2.count('Correto') ) )
+    print('Contém há maconha: ' + str( prediction_audios2.count('Errado') ) )
+    print("Quantidade: " + str(len(prediction_audios2)))
