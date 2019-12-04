@@ -105,7 +105,7 @@ if __name__ == '__main__':
 
             prediction_audios.append('Audio suspeito') if 'maconha' in predictions else prediction_audios.append('Não suspeito')
        
-        except RuntimeWarning:
+        except (ValueError, RuntimeWarning) as e:
             pass
 
     # Files which there is NOT the element "maconha inside the audio"
@@ -127,7 +127,7 @@ if __name__ == '__main__':
 
             prediction_audios2.append('Correto') if not 'maconha' in predictions2 else prediction_audios2.append('Errado')
         
-        except (RuntimeWarning, ValueError ) as e:
+        except (ValueError, RuntimeWarning) as e:
             pass   
 
     print("\n\n")
