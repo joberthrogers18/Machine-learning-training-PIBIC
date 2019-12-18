@@ -1,1 +1,9 @@
 .ipynb_checkpoints
+*.wav
+*.mp3
+env
+venv
+ENV
+*.lock
+.vscode
+__pycache__
